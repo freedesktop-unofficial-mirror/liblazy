@@ -27,7 +27,10 @@ AC_SUBST([DBUS_CFLAGS])
 
 AC_CONFIG_FILES([Makefile
 		liblazy/Makefile
-		liblazy/lazy.pc])
+		liblazy/lazy.pc
+		tools/Makefile
+		docs/Makefile
+		docs/autodocs/Makefile])
 
 AC_OUTPUT
 
