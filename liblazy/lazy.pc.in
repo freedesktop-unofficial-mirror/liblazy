@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: liblazy
+Description: D-Bus methods provided for convenience
+Version: @VERSION@
+Requires: dbus-1
+
+Libs: -L${libdir} -llazy
+Cflags: -I${includedir}

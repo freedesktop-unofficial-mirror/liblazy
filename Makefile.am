@@ -1,0 +1,1 @@
+SUBDIRS = liblazy tools docs
