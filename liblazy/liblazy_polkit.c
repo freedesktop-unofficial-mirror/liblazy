@@ -42,7 +42,7 @@ int liblazy_polkit_is_user_allowed_by_name(char *user,
 	DBusConnection	*dbus_connection;
 	const char	*unique_name;
 	int		is_allowed;
-	int		ret = 0;
+	int		error = 0;
 
 	dbus_error_init(&dbus_error);
 
@@ -60,22 +60,25 @@ int liblazy_polkit_is_user_allowed_by_name(char *user,
 	if (ressource == NULL)
 		ressource = "";
 
-	ret = liblazy_dbus_system_send_method_call(DBUS_POLKIT_SERVICE,
-						   DBUS_POLKIT_PATH,
-						   DBUS_POLKIT_INTERFACE,
-						   "IsUserPrivileged",
-						   &reply,
-						   DBUS_TYPE_STRING, &unique_name, 
-						   DBUS_TYPE_STRING, &user, 
-						   DBUS_TYPE_STRING, &privilege,
-						   DBUS_TYPE_STRING, &ressource,
-						   DBUS_TYPE_INVALID);
+	error = liblazy_dbus_system_send_method_call(DBUS_POLKIT_SERVICE,
+						     DBUS_POLKIT_PATH,
+						     DBUS_POLKIT_INTERFACE,
+						     "IsUserPrivileged",
+						     &reply,
+						     DBUS_TYPE_STRING, &unique_name, 
+						     DBUS_TYPE_STRING, &user, 
+						     DBUS_TYPE_STRING, &privilege,
+						     DBUS_TYPE_STRING, &ressource,
+						     DBUS_TYPE_INVALID);
 
-	ret = liblazy_dbus_message_get_basic_arg(reply, DBUS_TYPE_BOOLEAN,
-						 &is_allowed, 0);
+	if (error)
+		return error;
+
+	error = liblazy_dbus_message_get_basic_arg(reply, DBUS_TYPE_BOOLEAN,
+						   &is_allowed, 0);
 	dbus_message_unref(reply);
-	if (ret)
-		return ret;
+	if (error)
+		return error;
 	return is_allowed;
 }
 
