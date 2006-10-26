@@ -146,10 +146,9 @@ int liblazy_dbus_message_get_basic_arg(DBusMessage *message, int type,
 /** @brief get a array argument from a DBusMessage as a string list
  *
  * @param message the message to get the argument from
- * @param strlist a pointer to a string array to store the result
  * @param strlist pointer to array of strings to store the result. Has to
  *		  be freed with @ref liblazy_free_strlist
- * @param no a number specifying the n'th string array in the reply
+ * @param no a number specifying the n'th string array in the message
  *
  * @return 0 on success, LIBLAZY_ERROR_* on failure
  */
