@@ -82,8 +82,7 @@ int liblazy_polkit_is_user_allowed_by_name(char *user,
 	return is_allowed;
 }
 
-int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege,
-					  char *ressource)
+int liblazy_polkit_is_user_allowed(char *privilege, char *ressource)
 {
 	char *user = getenv("USER");
 	return liblazy_polkit_is_user_allowed_by_name(user, privilege,

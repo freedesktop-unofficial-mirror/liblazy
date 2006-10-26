@@ -146,9 +146,10 @@ int liblazy_dbus_message_get_basic_arg(DBusMessage *message, int type,
 /** @brief get a array argument from a DBusMessage as a string list
  *
  * @param message the message to get the argument from
+ * @param strlist a pointer to a string array to store the result
  * @param strlist pointer to array of strings to store the result. Has to
  *		  be freed with @ref liblazy_free_strlist
- * @param no a number specifying the n'th string array in the message
+ * @param no a number specifying the n'th string array in the reply
  *
  * @return 0 on success, LIBLAZY_ERROR_* on failure
  */
@@ -251,17 +252,15 @@ int liblazy_polkit_is_user_allowed_by_name(char *user, char *privilege,
 
 /** @brief check if a user possesses a privilege
  *
- * Functions asks the PolicyKit daemon if a user possesses a given
- * privilege on a optional given ressource
+ * Functions asks the PolicyKit daemon if the current user possesses a
+ * given privilege on a optional given ressource
  *
- * @param uid the uid to check for
  * @param privilege the privilege to check for
  * @param ressource the ressource to check for or NULL
  *
  * @return 0 on success, LIBLAZY_ERROR_* on failure
  */
-int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege,
-					  char *ressource);
+int liblazy_polkit_is_user_allowed(char *privilege, char *ressource);
 
 #ifdef __cplusplus
 }
