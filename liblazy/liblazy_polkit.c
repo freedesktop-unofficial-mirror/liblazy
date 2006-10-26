@@ -28,6 +28,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <pwd.h>
+#include <string.h>
+#include <errno.h>
 
 #define DBUS_POLKIT_SERVICE	"org.freedesktop.PolicyKit"
 #define DBUS_POLKIT_PATH	"/org/freedesktop/PolicyKit/Manager"
@@ -82,9 +85,24 @@ int liblazy_polkit_is_user_allowed_by_name(char *user,
 	return is_allowed;
 }
 
+int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege,
+					  char *ressource)
+{
+	struct passwd *pw = getpwuid(uid);
+
+	if (pw == NULL) {
+		ERROR("Could not get current username: %s", strerror(errno));
+		return LIBLAZY_ERROR_GENERAL;
+	}
+
+	return liblazy_polkit_is_user_allowed_by_name(pw->pw_name, privilege,
+						      ressource);
+}
+
 int liblazy_polkit_is_user_allowed(char *privilege, char *ressource)
 {
 	char *user = getenv("USER");
 	return liblazy_polkit_is_user_allowed_by_name(user, privilege,
 						      ressource);
 }
+
