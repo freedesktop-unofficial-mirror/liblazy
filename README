@@ -4,4 +4,92 @@ Liblazy - D-Bus methods provided for convenience
 Liblazy is a simple and easy to use library that provides convenient
 functions for sending messages over the D-Bus daemon, querying information
 from HAL or asking PolicyKit for a privilege. Its features may grow as
-needed, though
+needed, though.
+
+
+Rationale
+=========
+
+Once in a while, I stumble across an application which has no proper D-Bus
+support and gathers some information through reading /proc or sysfs, or
+any other circumstantial way, although software like HAL or PolicyKit
+already have this information. Or they just want to send a simple message
+to another application, sometimes even without caring about the reply.
+These applications often only have to do very simple tasks.
+
+So to adopt these applications, you always have to duplicate lots of code
+over and over again.
+
+Just some examples...
+
+To to send a message over D-Bus one has to do:
+  1. Get a D-Bus connection
+  2. Check for errors
+  3. Send a message over the bus
+  4. Check for errors
+  5. Get the reply
+  6. Check for errors
+
+To get a simple property from HAL, one has to do (with libhal in
+this example):
+  1. Get a D-Bus connection
+  2. Check for errors
+  3. Get a LibHalContext
+  4. C.f.e.
+  5. Register the connection with the context
+  6. C.f.e.
+  7. Fetch the property with libhal
+  8. C.f.e
+
+When you have to check if your application possess a specific privilege
+according to PolicyKit:
+    Either do a mixture of the above things to ask directly via D-Bus or
+    link against libpolkit and do a complicated call of
+    libpolkit_is_uid_allowed_for_privilege(7 arguments follow). This call
+    gives you a lot of information you might not care about at all.</li>
+
+So in every application, you have to implement functions like:</p>
+   - dbus_send_message(service, path, interface, method);
+   - dbus_send_message_with_reply(service, path, interface, method, &reply);
+   - hal_get_property_int(udi, property)
+   - ...
+
+There are a lot of applications which just don't want to care too much
+about D-Bus or HAL at all. I'm mostly talking about small applications, of
+course, even about those without a mainloop. They just want to make use of
+hardware databases and abstractions and a new way of inter process
+communication we have with D-Bus these days.
+
+So what I've done is combining these very simple functions into one small
+library called liblazy. A small application may just want to do the
+following to send a message over the bus and get its reply, maybe even
+with ignoring any errors:
+
+  DBusMessage *reply;
+  liblazy_dbus_system_send_method_call("org.freedesktop.NetworkworkManager",
+                                "/org/freedesktop/NetworkManager",
+                                "org.freedesktop.NetworkManager",
+                                "sleep",
+                                &reply,
+                                DBUS_TYPE_INVALID);
+
+  int *arg_from_reply;
+  liblazy_dbus_message_get_arg(reply, DBUS_TYPE_INT32, &arg_from_reply, 0);
+
+That's it. The application developer just has to link against libdbus and
+liblazy, without caring about any other stuff.
+
+Liblazy also contains very simple functions to get a property from HAL or
+ask for a privilege from PolicyKit. But it doesn't contain complex
+functionality. It may grow as needed, though. But...
+
+It is definitely not intended for replacing any of the dbus bindings,
+libhal or libpolkit. Complex applications can and will still have their
+own implementations and will link agains libhal or libpolkit or
+whatever. They are free to use liblazy, of course. But it is definitely of
+benefit for small applications which only need a subset of functionality
+and like to profit from new software like D-Bus, HAL, etc. but without
+having to care a lot. It should serve as a set of functions for developers
+provided for convenience. Also a lot more command line applications could
+make use of HAL, etc. in an easy way IMO. Additionally, it may serve as a
+code example for developers to get familiar with D-Bus.
