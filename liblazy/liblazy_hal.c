@@ -41,6 +41,9 @@ static int liblazy_hal_property_exists(char *udi, char *property)
 	int		exists	= 0;
 	DBusMessage	*reply;
 
+	if (udi == NULL || property == NULL)
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
+
 	error = liblazy_dbus_system_send_method_call(DBUS_HAL_SERVICE,
 						     udi,
 						     DBUS_HAL_DEVICE_INTERFACE,
@@ -68,6 +71,9 @@ static int liblazy_hal_get_property(char *udi, char *property, char *method,
 {
 	int		error = 0;
 	DBusMessage	*reply;
+
+	if (udi == NULL || property == NULL )
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
 
 	error = liblazy_dbus_system_send_method_call(DBUS_HAL_SERVICE,
 						     udi,
@@ -159,6 +165,9 @@ int liblazy_hal_get_property_strlist(char *udi, char *property, char ***strlist)
 	int		error	= 0;
 	DBusMessage	*reply;
 
+	if (udi == NULL || property == NULL )
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
+
 	error = liblazy_hal_property_exists(udi, property);
 	if (!error) {
 		strlist[0] = NULL;
@@ -190,6 +199,9 @@ int liblazy_hal_query_capability(char *udi, char *capability)
 	int	i;
 	int	error	= -1;
 	char	**caps	= NULL;
+
+	if (udi == NULL || capability == NULL )
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
 
 	error = liblazy_hal_get_property_strlist(udi, "info.capabilities", &caps);
 	if (caps != NULL && !error) {

@@ -47,6 +47,9 @@ int liblazy_polkit_is_user_allowed_by_name(char *user,
 	int		is_allowed;
 	int		error = 0;
 
+	if (user == NULL || privilege == NULL )
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
+
 	dbus_error_init(&dbus_error);
 
 	dbus_connection = dbus_bus_get(DBUS_BUS_SYSTEM, &dbus_error);

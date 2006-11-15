@@ -184,8 +184,13 @@ int liblazy_dbus_message_get_basic_arg(DBusMessage *message, int type,
 	int		current_type;
 	DBusMessageIter	iter;
 	int		x		= 0;
-	int		ret		= -1;
+	int		ret		= LIBLAZY_ERROR_GENERAL;
 	int		_no		= 0;
+
+	if (message == NULL) {
+		ERROR("Passing in NULL for message argument invalid");
+		return ret;
+	}
 
 	for (dbus_message_iter_init(message, &iter);
 	     (current_type = dbus_message_iter_get_arg_type(&iter)) != DBUS_TYPE_INVALID;
@@ -241,8 +246,11 @@ int liblazy_dbus_message_get_strlist_arg(DBusMessage *message,
 	int		current_type;
 	DBusMessageIter	iter;
 	int		x		= 0;
-	int		ret		= -1;
+	int		ret		= LIBLAZY_ERROR_GENERAL;
 	int		_no		= 0;
+
+	if (message == NULL)
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
 
 	for (dbus_message_iter_init(message, &iter);
 	     (current_type = dbus_message_iter_get_arg_type(&iter)) != DBUS_TYPE_INVALID;
