@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT(liblazy, HEAD, hmacht@suse.de)
+AC_INIT(liblazy, 0.1.1, hmacht@suse.de)
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([liblazy/liblazy_hal.c])
 

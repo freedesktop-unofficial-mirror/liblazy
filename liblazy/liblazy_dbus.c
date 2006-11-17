@@ -42,6 +42,9 @@ int liblazy_dbus_send_method_call(const char *destination, const char *path,
 	DBusMessage	*message		= NULL;
 	int		ret			= 0;
 
+	if (path == NULL || method == NULL)
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
+	
 	dbus_error_init(&dbus_error);
 
 	dbus_connection = dbus_bus_get(bus_type, &dbus_error);
@@ -127,6 +130,9 @@ static int liblazy_dbus_send_signal(const char *path, const char *interface,
 	DBusConnection	*dbus_connection;
 	int		ret = 0;
 
+	if (path == NULL || interface == NULL || name == NULL)
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
+	
 	dbus_error_init(&dbus_error);
 
 	dbus_connection = dbus_bus_get(bus_type, &dbus_error);
@@ -187,10 +193,8 @@ int liblazy_dbus_message_get_basic_arg(DBusMessage *message, int type,
 	int		ret		= LIBLAZY_ERROR_GENERAL;
 	int		_no		= 0;
 
-	if (message == NULL) {
-		ERROR("Passing in NULL for message argument invalid");
-		return ret;
-	}
+	if (message == NULL)
+		return LIBLAZY_ERROR_INVALID_ARGUMENT;
 
 	for (dbus_message_iter_init(message, &iter);
 	     (current_type = dbus_message_iter_get_arg_type(&iter)) != DBUS_TYPE_INVALID;

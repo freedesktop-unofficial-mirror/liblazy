@@ -82,7 +82,8 @@ int liblazy_polkit_is_user_allowed_by_name(char *user,
 
 	error = liblazy_dbus_message_get_basic_arg(reply, DBUS_TYPE_BOOLEAN,
 						   &is_allowed, 0);
-	dbus_message_unref(reply);
+	if (reply != NULL)
+		dbus_message_unref(reply);
 	if (error)
 		return error;
 	return is_allowed;

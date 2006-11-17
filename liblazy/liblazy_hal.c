@@ -60,7 +60,8 @@ static int liblazy_hal_property_exists(char *udi, char *property)
 
 	error = liblazy_dbus_message_get_basic_arg(reply, DBUS_TYPE_BOOLEAN,
 						   &exists, 0);
-	dbus_message_unref(reply);
+	if (reply != NULL)
+		dbus_message_unref(reply);
 	if (exists == 1)
 		return 1;
 	return error;
@@ -84,9 +85,14 @@ static int liblazy_hal_get_property(char *udi, char *property, char *method,
 						     &property,
 						     DBUS_TYPE_INVALID);	
 
+	if (error) {
+		ERROR("Error sending '%s' to HAL", method);
+		return error;
+	}
 
 	error = liblazy_dbus_message_get_basic_arg(reply, type, value, 0);
-	dbus_message_unref(reply);
+	if (reply != NULL)
+		dbus_message_unref(reply);
 	if (error)
 		ERROR("Error fetching property '%s'", property);
 	return error;
@@ -117,32 +123,45 @@ static int liblazy_hal_get_strlist_manager(char ***strlist, char *method,
 	}
 
 	error = liblazy_dbus_message_get_strlist_arg(reply, strlist, 0);
-	dbus_message_unref(reply);
+	if (reply != NULL)
+		dbus_message_unref(reply);
 	return error;
 }
 
 int liblazy_hal_get_property_string(char *udi, char *property, char **value)
 {
 	char	*str;
-	int	error;
+	int	ret;
 
-	if (liblazy_hal_property_exists(udi, property) != 1) {
-		*value = NULL;
-		return LIBLAZY_ERROR_HAL_NO_SUCH_PROPERTY;
+	ret = liblazy_hal_property_exists(udi, property);
+	if (ret != 1) {
+		if (ret == 0)
+			ret = LIBLAZY_ERROR_HAL_NO_SUCH_PROPERTY;
+		goto Error;
 	}
 
-	error = liblazy_hal_get_property(udi, property, "GetPropertyString",
-					 DBUS_TYPE_STRING, &str);
-	
+	ret = liblazy_hal_get_property(udi, property, "GetPropertyString",
+				       DBUS_TYPE_STRING, &str);
+	if (ret)
+		goto Error;
+
 	*value = strdup(str);
-	return error;
+	return ret;
+Error:
+	*value = NULL;
+	return ret;
 }
 
 int liblazy_hal_get_property_int(char *udi, char *property, int *value)
 {
-	if (!liblazy_hal_property_exists(udi, property)) {
+	int ret;
+
+	ret = liblazy_hal_property_exists(udi, property);
+	if (ret != 1) {
+		if (ret == 0)
+			ret = LIBLAZY_ERROR_HAL_NO_SUCH_PROPERTY;
 		*value = -1;
-		return LIBLAZY_ERROR_HAL_NO_SUCH_PROPERTY;
+		return ret;
 	}
 
 	return liblazy_hal_get_property(udi, property, "GetPropertyInteger",
@@ -151,9 +170,14 @@ int liblazy_hal_get_property_int(char *udi, char *property, int *value)
 
 int liblazy_hal_get_property_bool(char *udi, char *property, int *value)
 {
-	if (!liblazy_hal_property_exists(udi, property)) {
+	int ret;
+
+	ret = liblazy_hal_property_exists(udi, property);
+	if (ret != 1) {
+		if (ret == 0)
+			ret = LIBLAZY_ERROR_HAL_NO_SUCH_PROPERTY;
 		*value = -1;
-		return LIBLAZY_ERROR_HAL_NO_SUCH_PROPERTY;
+		return ret;
 	}
 
 	return liblazy_hal_get_property(udi, property, "GetPropertyBoolean",
@@ -169,9 +193,10 @@ int liblazy_hal_get_property_strlist(char *udi, char *property, char ***strlist)
 		return LIBLAZY_ERROR_INVALID_ARGUMENT;
 
 	error = liblazy_hal_property_exists(udi, property);
-	if (!error) {
-		strlist[0] = NULL;
-		return error;
+	if (error != 1) {
+		if (error == 0)
+			error = LIBLAZY_ERROR_HAL_NO_SUCH_PROPERTY;
+		goto Error;
 	}
 
 	error = liblazy_dbus_system_send_method_call(DBUS_HAL_SERVICE,
@@ -185,12 +210,18 @@ int liblazy_hal_get_property_strlist(char *udi, char *property, char ***strlist)
 
 	if (error) {
 		ERROR("Error while getting strlist property %s from HAL", property);
-		return error;
+		goto Error;
 	}
 
 	error = liblazy_dbus_message_get_strlist_arg(reply, strlist, 0);
-	dbus_message_unref(reply);
-
+	if (reply != NULL)
+		dbus_message_unref(reply);
+	if (error)
+		goto Error;
+	return error;
+ 
+Error:
+	strlist[0] = NULL;
 	return error;
 }
 
