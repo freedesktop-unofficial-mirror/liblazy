@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 	DBusMessage *reply = NULL;
 
 	printf("Try to set the ondemand governor\n");
+/*	liblazy_dbus_system_use_private_connection(1);*/
 	ret = liblazy_dbus_system_send_method_call(DBUS_HAL_INTERFACE,
 						   DBUS_HAL_UDI_COMPUTER,
 						   DBUS_HAL_CPUFREQ_INTERFACE,
