@@ -57,22 +57,6 @@ void liblazy_free_string(char *string);
  */
 void liblazy_free_strlist(char **strlist);
 
-/** @brief use a private connection for system bus messages
- *
- * Call this function with a boolean value to tell the library whether to
- * use a private connection for system bus messages
- * (liblazy_dbus_system*). Defaults to false. If a private connection is
- * used, the libarary creates a new connection on _every_ call and
- * immediately closes it. So this should be used very carefully. Only use
- * if your application does very rare dbus calls and doesn't have a
- * mainloop to listen if D-Bus died but still should be able to survive
- * D-Bus restarts.
- *
- * @param use_privat 1 if the library should use a private connection, 0
- *		     otherwise
- */
-void liblazy_dbus_system_use_private_connection(int use_private);
-
 /** @brief send a method call to the system bus
  *
  * sends a method call to the system bus. The call blocks if a reply is
@@ -172,6 +156,22 @@ int liblazy_dbus_message_get_basic_arg(DBusMessage *message, int type,
  */
 int liblazy_dbus_message_get_strlist_arg(DBusMessage *message,
 					 char ***strlist, int no);
+
+/** @brief use a private connection for system bus messages
+ *
+ * Call this function with a boolean value to tell the library whether to
+ * use a private connection for system bus messages
+ * (liblazy_dbus_system*). Defaults to false. If a private connection is
+ * used, the libarary creates a new connection on _every_ call and
+ * immediately closes it. So this should be used very carefully. Only use
+ * if your application does very rare dbus calls and doesn't have a
+ * mainloop to listen if D-Bus died but still should be able to survive
+ * D-Bus restarts.
+ *
+ * @param use_privat 1 if the library should use a private connection, 0
+ *		     otherwise
+ */
+void liblazy_dbus_system_use_private_connection(int use_private);
 
 /** @brief get integer property from HAL
  *
