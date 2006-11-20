@@ -25,11 +25,18 @@
 
 #include "liblazy.h"
 #include "liblazy_local.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+
+static int dbus_system_use_private_connection = 0;
+
+void liblazy_dbus_system_use_private_connection(int use_private) {
+	dbus_system_use_private_connection = use_private;
+}
 
 int liblazy_dbus_send_method_call(const char *destination, const char *path,
 				  const char *interface, const char *method,
@@ -47,12 +54,31 @@ int liblazy_dbus_send_method_call(const char *destination, const char *path,
 	
 	dbus_error_init(&dbus_error);
 
-	dbus_connection = dbus_bus_get(bus_type, &dbus_error);
-	if (dbus_connection == NULL || dbus_error_is_set(&dbus_error)) {
-		ERROR("Connection to dbus not ready, skipping method call %s: %s",
-		      method, dbus_error.message);
-		ret = LIBLAZY_ERROR_DBUS_NOT_READY;
-		goto Free_Error;
+	if (bus_type == DBUS_BUS_SYSTEM && dbus_system_use_private_connection) {
+		dbus_connection = dbus_connection_open_private(DBUS_SYSTEM_BUS_SOCKET,
+							       &dbus_error);
+		if (dbus_connection == NULL || dbus_error_is_set(&dbus_error)) {
+			ERROR("Connection to dbus not ready, skipping method call %s: %s",
+			      method, dbus_error.message);
+			ret = LIBLAZY_ERROR_DBUS_NOT_READY;
+			goto Free_Error;
+		}
+		
+		dbus_bus_register(dbus_connection, &dbus_error);
+		if (dbus_error_is_set(&dbus_error)) {
+			ERROR("Could not register private connection, skipping method call %s: %s",
+			      method, dbus_error.message);
+			ret = LIBLAZY_ERROR_DBUS_NOT_READY;
+			goto Free_Error;
+		}
+	} else  {
+		dbus_connection = dbus_bus_get(bus_type, &dbus_error);
+		if (dbus_connection == NULL || dbus_error_is_set(&dbus_error)) {
+			ERROR("Connection to dbus not ready, skipping method call %s: %s",
+			      method, dbus_error.message);
+			ret = LIBLAZY_ERROR_DBUS_NOT_READY;
+			goto Free_Error;
+		}
 	}
 
 	message = dbus_message_new_method_call(destination, path, interface, method);
@@ -74,6 +100,10 @@ int liblazy_dbus_send_method_call(const char *destination, const char *path,
 	}
 
 	dbus_message_unref(message);
+	if (dbus_system_use_private_connection) {
+		dbus_connection_close(dbus_connection);
+		dbus_connection_unref(dbus_connection);
+	}
 Free_Error:
 	dbus_error_free(&dbus_error);
 	return ret;
