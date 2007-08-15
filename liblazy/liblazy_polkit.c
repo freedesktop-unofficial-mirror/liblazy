@@ -32,19 +32,17 @@
 #include <string.h>
 #include <errno.h>
 
-#define DBUS_POLKIT_SERVICE	"org.freedesktop.PolicyKit"
-#define DBUS_POLKIT_PATH	"/org/freedesktop/PolicyKit/Manager"
-#define DBUS_POLKIT_INTERFACE	"org.freedesktop.PolicyKit.Manager"
+#define DBUS_HAL_SERVICE		"org.freedesktop.Hal"
+#define DBUS_HAL_DEVICE_INTERFACE	"org.freedesktop.Hal.Device"
+#define DBUS_HAL_COMPUTER_PATH		"/org/freedesktop/Hal/devices/computer"
 
-int liblazy_polkit_is_user_allowed_by_name(char *user,
-					   char *privilege,
-					   char *ressource)
+int liblazy_polkit_is_user_allowed_by_name(char *user, char *privilege)
 {
 	DBusMessage	*reply;
 	DBusError	dbus_error;
 	DBusConnection	*dbus_connection;
 	const char	*unique_name;
-	int		is_allowed;
+	char		*allowed;
 	int		error = 0;
 
 	if (user == NULL || privilege == NULL )
@@ -63,34 +61,31 @@ int liblazy_polkit_is_user_allowed_by_name(char *user,
 
 	unique_name = dbus_bus_get_unique_name(dbus_connection);
 
-	if (ressource == NULL)
-		ressource = "";
-
-	error = liblazy_dbus_system_send_method_call(DBUS_POLKIT_SERVICE,
-						     DBUS_POLKIT_PATH,
-						     DBUS_POLKIT_INTERFACE,
-						     "IsUserPrivileged",
+	error = liblazy_dbus_system_send_method_call(DBUS_HAL_SERVICE,
+						     DBUS_HAL_COMPUTER_PATH,
+						     DBUS_HAL_DEVICE_INTERFACE,
+						     "IsCallerPrivileged",
 						     &reply,
+						     DBUS_TYPE_STRING, &privilege, 
 						     DBUS_TYPE_STRING, &unique_name, 
-						     DBUS_TYPE_STRING, &user, 
-						     DBUS_TYPE_STRING, &privilege,
-						     DBUS_TYPE_STRING, &ressource,
 						     DBUS_TYPE_INVALID);
 
 	if (error)
 		return error;
 
-	error = liblazy_dbus_message_get_basic_arg(reply, DBUS_TYPE_BOOLEAN,
-						   &is_allowed, 0);
+	error = liblazy_dbus_message_get_basic_arg(reply, DBUS_TYPE_STRING,
+						   &allowed, 0);
+
 	if (reply != NULL)
 		dbus_message_unref(reply);
 	if (error)
 		return error;
-	return is_allowed;
+	if (strcmp(allowed, "yes") == 0)
+		return 1;
+	return 0;
 }
 
-int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege,
-					  char *ressource)
+int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege)
 {
 	struct passwd *pw = getpwuid(uid);
 
@@ -99,14 +94,12 @@ int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege,
 		return LIBLAZY_ERROR_GENERAL;
 	}
 
-	return liblazy_polkit_is_user_allowed_by_name(pw->pw_name, privilege,
-						      ressource);
+	return liblazy_polkit_is_user_allowed_by_name(pw->pw_name, privilege);
 }
 
-int liblazy_polkit_is_user_allowed(char *privilege, char *ressource)
+int liblazy_polkit_is_user_allowed(char *privilege)
 {
 	char *user = getenv("USER");
-	return liblazy_polkit_is_user_allowed_by_name(user, privilege,
-						      ressource);
+	return liblazy_polkit_is_user_allowed_by_name(user, privilege);
 }
 

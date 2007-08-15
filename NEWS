@@ -1,0 +1,2 @@
+- converted to PokicyKit >= 0.4 API
+- add method to use private dbus connection

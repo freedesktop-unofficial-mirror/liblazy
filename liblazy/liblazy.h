@@ -264,8 +264,7 @@ int liblazy_hal_find_device_by_string_match(char *key, char *value, char ***strl
  *
  * @return 0 on success, LIBLAZY_ERROR_* on failure
  */
-int liblazy_polkit_is_user_allowed_by_name(char *user, char *privilege,
-					   char *ressource);
+int liblazy_polkit_is_user_allowed_by_name(char *user, char *privilege);
 
 /** @brief check if a user possesses a privilege
  *
@@ -278,8 +277,7 @@ int liblazy_polkit_is_user_allowed_by_name(char *user, char *privilege,
  *
  * @return 0 on success, LIBLAZY_ERROR_* on failure
  */
-int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege,
-					  char *ressource);
+int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege);
 
 /** @brief check if a user possesses a privilege
  *
@@ -291,7 +289,7 @@ int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege,
  *
  * @return 0 on success, LIBLAZY_ERROR_* on failure
  */
-int liblazy_polkit_is_user_allowed(char *privilege, char *ressource);
+int liblazy_polkit_is_user_allowed(char *privilege);
 
 #ifdef __cplusplus
 }
