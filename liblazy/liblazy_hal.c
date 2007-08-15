@@ -235,16 +235,17 @@ int liblazy_hal_query_capability(char *udi, char *capability)
 		return LIBLAZY_ERROR_INVALID_ARGUMENT;
 
 	error = liblazy_hal_get_property_strlist(udi, "info.capabilities", &caps);
-	if (caps != NULL && !error) {
+	if (error)
+		return error;
+
+	if (caps != NULL) {
 		for (i = 0; caps[i] != NULL; i++) {
-			if (strcmp(caps[i], capability) == 0) {
+			if (strcmp(caps[i], capability) == 0)
 				error = 1;
-				break;
-			}
 		}
 		liblazy_free_strlist(caps);
-		error = 0;
 	}
+
 	return error;
 }
 
