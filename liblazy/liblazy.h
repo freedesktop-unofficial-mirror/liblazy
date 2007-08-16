@@ -255,41 +255,14 @@ int liblazy_hal_find_device_by_string_match(char *key, char *value, char ***strl
 
 /** @brief check if a user possesses a privilege
  *
- * Functions asks the PolicyKit daemon if a user possesses a given
- * privilege on a optional given ressource
- *
- * @param user the username to check for
- * @param privilege the privilege to check for
- * @param ressource the ressource to check for or NULL
- *
- * @return 0 on success, LIBLAZY_ERROR_* on failure
- */
-int liblazy_polkit_is_user_allowed_by_name(char *user, char *privilege);
-
-/** @brief check if a user possesses a privilege
- *
- * Functions asks the PolicyKit daemon if the user with the given uid
- * possesses a given privilege on a optional given ressource
- *
- * @param uid the uid to check against
- * @param privilege the privilege to check for
- * @param ressource the ressource to check for or NULL
- *
- * @return 0 on success, LIBLAZY_ERROR_* on failure
- */
-int liblazy_polkit_is_user_allowed_by_uid(int uid, char *privilege);
-
-/** @brief check if a user possesses a privilege
- *
- * Functions asks the PolicyKit daemon if the current user possesses a
- * given privilege on a optional given ressource
+ * Check if the caller possesses the given privilege on the default device
+ * '/org/freedesktop/Hal/devices/computer'
  *
  * @param privilege the privilege to check for
- * @param ressource the ressource to check for or NULL
  *
- * @return 0 on success, LIBLAZY_ERROR_* on failure
+ * @return 1 if the caller is privileged, 0 if not, and LIBLAZY_ERROR_* on failure
  */
-int liblazy_polkit_is_user_allowed(char *privilege);
+int liblazy_hal_is_caller_privileged(char *privilege);
 
 #ifdef __cplusplus
 }
