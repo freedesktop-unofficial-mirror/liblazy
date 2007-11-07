@@ -36,7 +36,7 @@
 #define DBUS_HAL_MANAGER_INTERFACE	"org.freedesktop.Hal.Manager"
 #define DBUS_HAL_COMPUTER_PATH		"/org/freedesktop/Hal/devices/computer"
 
-static int liblazy_hal_property_exists(char *udi, char *property)
+static int liblazy_hal_property_exists(const char *udi, const char *property)
 {
 	int		error	= 0;
 	int		exists	= 0;
@@ -68,8 +68,8 @@ static int liblazy_hal_property_exists(char *udi, char *property)
 	return error;
 }
 
-static int liblazy_hal_get_property(char *udi, char *property, char *method,
-				    int type, void *value)
+static int liblazy_hal_get_property(const char *udi, const char *property,
+				    const char *method, int type, void *value)
 {
 	int		error = 0;
 	DBusMessage	*reply;
@@ -99,7 +99,7 @@ static int liblazy_hal_get_property(char *udi, char *property, char *method,
 	return error;
 }
 
-static int liblazy_hal_get_strlist_manager(char ***strlist, char *method,
+static int liblazy_hal_get_strlist_manager(char ***strlist, const char *method,
 					   int first_arg_type, ...)
 {
 	int		error	= 0;
@@ -129,7 +129,8 @@ static int liblazy_hal_get_strlist_manager(char ***strlist, char *method,
 	return error;
 }
 
-int liblazy_hal_get_property_string(char *udi, char *property, char **value)
+int liblazy_hal_get_property_string(const char *udi, const char *property,
+				    char **value)
 {
 	char	*str;
 	int	ret;
@@ -153,7 +154,8 @@ Error:
 	return ret;
 }
 
-int liblazy_hal_get_property_int(char *udi, char *property, int *value)
+int liblazy_hal_get_property_int(const char *udi, const char *property,
+				 int *value)
 {
 	int ret;
 
@@ -169,7 +171,8 @@ int liblazy_hal_get_property_int(char *udi, char *property, int *value)
 					DBUS_TYPE_INT32, value);
 }
 
-int liblazy_hal_get_property_bool(char *udi, char *property, int *value)
+int liblazy_hal_get_property_bool(const char *udi, const char *property,
+				  int *value)
 {
 	int ret;
 
@@ -185,7 +188,8 @@ int liblazy_hal_get_property_bool(char *udi, char *property, int *value)
 					DBUS_TYPE_BOOLEAN, value);
 }
 
-int liblazy_hal_get_property_strlist(char *udi, char *property, char ***strlist)
+int liblazy_hal_get_property_strlist(const char *udi, const char *property,
+				     char ***strlist)
 {
 	int		error	= 0;
 	DBusMessage	*reply;
@@ -226,7 +230,7 @@ Error:
 	return error;
 }
 
-int liblazy_hal_query_capability(char *udi, char *capability)
+int liblazy_hal_query_capability(const char *udi, const char *capability)
 {
 	int	i;
 	int	error	= -1;
@@ -250,7 +254,7 @@ int liblazy_hal_query_capability(char *udi, char *capability)
 	return error;
 }
 
-int liblazy_hal_find_device_by_capability(char *capability, char ***strlist)
+int liblazy_hal_find_device_by_capability(const char *capability, char ***strlist)
 {
 	int error;
 	error = liblazy_hal_get_strlist_manager(strlist, "FindDeviceByCapability",
@@ -264,7 +268,8 @@ int liblazy_hal_find_device_by_capability(char *capability, char ***strlist)
 
 }
 
-int liblazy_hal_find_device_by_string_match(char *key, char *value, char ***strlist)
+int liblazy_hal_find_device_by_string_match(const char *key, const char *value,
+					    char ***strlist)
 {
 	int error;
 	error = liblazy_hal_get_strlist_manager(strlist, "FindDeviceStringMatch",
@@ -277,7 +282,7 @@ int liblazy_hal_find_device_by_string_match(char *key, char *value, char ***strl
 	return error;
 }
 
-int liblazy_hal_is_caller_privileged(char *privilege)
+int liblazy_hal_is_caller_privileged(const char *privilege)
 {
 	DBusMessage	*reply;
 	DBusError	dbus_error;
